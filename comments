@@ -1,0 +1,9 @@
+import requests
+import pandas as pd
+url = "https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=GXs23OOCGW0&key=AIzaSyBwVBaYAjsSyj19TLXmDuNoliSsKmA6oK0"
+headers={'Accept':'application/json'}
+r=requests.get(url,headers=headers)
+d=r.json()
+d
+data=pd.DataFrame.from_dict(d,orient='index')
+data[0][4]
