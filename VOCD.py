@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 from sklearn.svm import SVC
 import pickle
+import os
 
 def deEmojify(inputString):
     return inputString.encode('utf-8', 'ignore').decode('utf-8')
@@ -32,14 +33,18 @@ def preprocessing():
                         headers={'Accept':'application/json'}
                         r=requests.get(url,headers=headers)
                         d=r.json()
-                        d['items']
-                        ndata =pd.DataFrame.from_dict(d['items'],orient='columns')
-                        thislist=[]
-                        for i in range(len(ndata)):
-                            comment=ndata['snippet'][i]['topLevelComment']['snippet']
-                            comments.loc[len(comments)]=[ndata['snippet'][i]['topLevelComment']['id'],comment['textDisplay'],comment['likeCount'],ndata['snippet'][i]['totalReplyCount']]
+                        if 'items' in d:
+                            d['items']
+                            ndata =pd.DataFrame.from_dict(d['items'],orient='columns')
+                            thislist=[]
+                            for i in range(len(ndata)):
+                                comment=ndata['snippet'][i]['topLevelComment']['snippet']
+                                comments.loc[len(comments)]=[ndata['snippet'][i]['topLevelComment']['id'],comment['textDisplay'],comment['likeCount'],ndata['snippet'][i]['totalReplyCount']]
                         if d['pageInfo']['totalResults']==50:
-                            nt=d['nextPageToken']
+                            if 'nextPageToken' in d:
+                                nt=d['nextPageToken']
+                            else:
+                                break
                         else:
                             break
 
@@ -68,9 +73,15 @@ def preprocessing():
                     comments.loc[com,'ver']=ver
                 comments.sort_values('ver',ascending=False)
                 comments['len']=comments['text'].apply(len)
-    # The file which contains the data of the comments(panda):
-    comments.to_csv("comments.csv")
-
+                # The file which contains the data of the comments(panda):
+                # if file does not exist write header
+                if not os.path.isfile('comments.csv'):
+                    comments.to_csv('comments.csv', header=True)
+                else:  # else it exists so append without writing the header
+                    comments.to_csv('comments.csv', mode='a', header=False)
+    print("Comments file has been successfully created")
+    comments = pd.read_csv('comments.csv')
+    print("The file was read")
     X = comments[['len','likes','replies']]
     Y = comments['ver']
     columns = ['len','likes','replies','ver']
