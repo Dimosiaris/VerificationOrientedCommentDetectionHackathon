@@ -25,7 +25,7 @@ def preprocessing():
                 for i in range(len(ndata)):
                     comment=ndata['snippet'][i]['topLevelComment']['snippet']
                     comments.loc[len(comments)]=[ndata['snippet'][i]['topLevelComment']['id'],comment['textDisplay'],comment['likeCount'],ndata['snippet'][i]['totalReplyCount']]
-                if d['pageInfo']['totalResults']==50:
+                if 'nextPageToken' in d:
                     nt=d['nextPageToken']
                     while nt:
                         url="https://www.googleapis.com/youtube/v3/commentThreads?key=AIzaSyBwVBaYAjsSyj19TLXmDuNoliSsKmA6oK0&textFormat=plainText&part=snippet&videoId="+video_id+"&maxResults=50"+'&pageToken='+nt
